@@ -1,4 +1,4 @@
-from app.database import engine,Base,SessionLocal
+from app.database import engine,Base,SessionLocal,get_db
 from fastapi import APIRouter,Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -9,15 +9,10 @@ from typing import Optional
 from datetime import datetime, timezone
 from sqlalchemy.exc import IntegrityError
 from fastapi.encoders import jsonable_encoder
-
+from app.routers.auth import get_current_user
 router = APIRouter()
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 
 def generate_codename(db):
     codenames = ["The Nightingale", "The Kraken", "Phantom", "Shadow Hawk"]
@@ -66,7 +61,7 @@ def add_gadgets(gadget: GadgetCreate, db: Session = Depends(get_db)):
 
     
 @router.get("/gadgets",response_model=list[GadgetResponse])
-def get_gadgets(db:Session=Depends(get_db)):
+def get_gadgets(user:str=Depends(get_current_user),db:Session=Depends(get_db)):
     gadgets = db.query(Gadget).all()
     gadget_list = []  # Create an empty list
     for gadget in gadgets:

@@ -1,5 +1,5 @@
 from fastapi import APIRouter,Depends,HTTPException
-from app.routers.gadgets import get_db
+from app.database import get_db
 from sqlalchemy.orm import Session
 from app.models import User
 from pydantic import BaseModel
@@ -9,6 +9,7 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta,timezone
 import jwt
+from jose import JWTError
 
 # Load environment variables
 load_dotenv()
@@ -17,6 +18,7 @@ router = APIRouter()
 
 secret_key = os.getenv("SECRET_KEY","secret")
 access_token_expire = os.getenv("ACCESS_TOKEN_EXPIRE")
+oauth2scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 class TokenResponse(BaseModel):
     access_token: str
     user:str
@@ -28,6 +30,19 @@ def create_access_token(data:dict,expires_delta:timedelta=None):
     expire = datetime.now(timezone.utc) + expires_delta
     user_data.update({"exp": expire})
     return jwt.encode(user_data, secret_key, algorithm="HS256")
+
+def verify_token(token:str):
+    try:
+        payload = jwt.decode(token, secret_key, algorithms="HS256")
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return username
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+def get_current_user(token: str = Depends(oauth2scheme)):
+    username = verify_token(token)
+    return username
     
 # Example Route
 @router.get("/test")
@@ -60,6 +75,6 @@ def user_login(form_data : OAuth2PasswordRequestForm=Depends(),db:Session=Depend
         
             return {"user":user.username,"access_token":access_token}
         else:
-            return {"message":"user doesn't exist"}
+            raise HTTPException(status_code=401,detail="user doesn't exist")
     else:
-        return {"message":"user doesn't exists"}
+        raise HTTPException(status_code=401,detail="user doesn't exist")
