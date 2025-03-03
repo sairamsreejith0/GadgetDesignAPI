@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from sqlalchemy.exc import IntegrityError
 from fastapi.encoders import jsonable_encoder
 from app.routers.auth import get_current_user
+from sqlalchemy import cast,String
 router = APIRouter()
 
 
@@ -72,7 +73,7 @@ def get_gadgets(user:str=Depends(get_current_user),db:Session=Depends(get_db)):
             "success_probability": f"{random.randint(50, 100)}%"
         }
         gadget_list.append(gadget_dict)
-
+    print(gadget_list)
     return gadget_list
     
 @router.get("/gadgets/{id}", response_model=dict)
@@ -144,5 +145,18 @@ def self_destruct(id: UUID, db: Session = Depends(get_db)):
     return {"message": "Self-destruct initiated", "confirmation_code": confirmation_code}
 
 
-    
-    
+@router.get("/gadgets-by-status",response_model=list[GadgetResponse])
+def get_gadget_status(status:str,user:str=Depends(get_current_user),db:Session=Depends(get_db)):
+    gadgets = db.query(Gadget).filter(cast(Gadget.status, String) == status).all()
+    if not gadgets:
+        return []
+    gadget_list = []  # Create an empty list
+    for gadget in gadgets:
+        gadget_dict = {
+            "id" : str(gadget.id),
+            "name": gadget.name,
+            "status":gadget.status,
+            "success_probability": f"{random.randint(50, 100)}%"
+        }
+        gadget_list.append(gadget_dict)
+    return gadget_list
