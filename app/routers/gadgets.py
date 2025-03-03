@@ -62,7 +62,7 @@ def add_gadgets(gadget: GadgetCreate, db: Session = Depends(get_db)):
 
     
 @router.get("/gadgets",response_model=list[GadgetResponse])
-def get_gadgets(user:str=Depends(get_current_user),db:Session=Depends(get_db)):
+def get_gadgets(db:Session=Depends(get_db)):
     gadgets = db.query(Gadget).all()
     gadget_list = []  # Create an empty list
     for gadget in gadgets:
@@ -146,7 +146,7 @@ def self_destruct(id: UUID, db: Session = Depends(get_db)):
 
 
 @router.get("/gadgets-by-status",response_model=list[GadgetResponse])
-def get_gadget_status(status:str,user:str=Depends(get_current_user),db:Session=Depends(get_db)):
+def get_gadget_status(status:str,db:Session=Depends(get_db)):
     gadgets = db.query(Gadget).filter(cast(Gadget.status, String) == status).all()
     if not gadgets:
         return []

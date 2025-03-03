@@ -45,9 +45,7 @@ def get_current_user(token: str = Depends(oauth2scheme)):
     return username
     
 # Example Route
-@router.get("/test")
-def test_route():
-    return {"message": "Auth module is working!"}
+
 
 class Usersignup(BaseModel):
     username:str
