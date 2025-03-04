@@ -42,11 +42,10 @@ class GadgetUpdate(BaseModel):
 @router.post("/gadgets", response_model=dict)
 def add_gadgets(gadget: GadgetCreate, db: Session = Depends(get_db)):
     try:
-        if gadget.status and gadget.status not in ["Available", "Deployed", "Destroyed", "Decommissioned"]:
+        if gadget.status == "":
+            gadget.status = "Available"
+        elif gadget.status and gadget.status not in ["Available", "Deployed", "Destroyed", "Decommissioned"]:
             raise HTTPException(status_code=400, detail="Invalid status value")
-
-        # Set default status if not provided
-        gadget_status = gadget.status if gadget.status else "Available"
 
         new_gadget = Gadget(
         id=uuid.uuid4(),
