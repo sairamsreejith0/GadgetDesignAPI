@@ -7,7 +7,7 @@ from uuid import UUID
 from app.models import Gadget
 from typing import Optional
 from datetime import datetime, timezone
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError,SQLAlchemyError
 from fastapi.encoders import jsonable_encoder
 from app.routers.auth import get_current_user
 from sqlalchemy import cast,String
@@ -41,24 +41,35 @@ class GadgetUpdate(BaseModel):
 
 @router.post("/gadgets", response_model=dict)
 def add_gadgets(gadget: GadgetCreate, db: Session = Depends(get_db)):
-    if gadget.status is None:
-        gadget.status = "Available"  # Default status if not provided
+    try:
+        if gadget.status and gadget.status not in ["Available", "Deployed", "Destroyed", "Decommissioned"]:
+            raise HTTPException(status_code=400, detail="Invalid status value")
 
-    new_gadget = Gadget(
+        # Set default status if not provided
+        gadget_status = gadget.status if gadget.status else "Available"
+
+        new_gadget = Gadget(
         id=uuid.uuid4(),
         name=generate_codename(db),
         status=gadget.status
     )
-    db.add(new_gadget)
-    db.commit()
-    db.refresh(new_gadget)
+        db.add(new_gadget)
+        db.commit()
+        db.refresh(new_gadget)
     
-    return {
+        return {
         "message": "Gadget added successfully",
         "id": str(new_gadget.id),
         "name": new_gadget.name,
         "status": new_gadget.status
-    }
+        }
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Database error: " + str(e))
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Unexpected error: " + str(e))
 
     
 @router.get("/gadgets",response_model=list[GadgetResponse])
@@ -73,7 +84,7 @@ def get_gadgets(db:Session=Depends(get_db)):
             "success_probability": f"{random.randint(50, 100)}%"
         }
         gadget_list.append(gadget_dict)
-    print(gadget_list)
+    
     return gadget_list
     
 @router.get("/gadgets/{id}", response_model=dict)
