@@ -14,7 +14,7 @@
 - Render for deployment
 
 ## Installation
-    1. Clone the repository:
+    1) Clone the repository:
 
        git clone https://github.com/sairamsreejith0/GadgetDesignAPI.git
 
