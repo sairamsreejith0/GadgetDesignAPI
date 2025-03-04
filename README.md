@@ -1,20 +1,23 @@
-**IMF GADGET DESIGN**
-A FastAPI-based project that provides CRUD operations for managing gadgets, including authentication, authorization, and robust error handling.
-Features
-Secure authentication using OAuth2
-    CRUD operations for gadgets
-    PostgreSQL database integration
-    Proper error handling with validation
-    Deployed on Render
+# IMF GADGET DESIGN
 
-Tech Stack
-    FastAPI as the backend framework for building scalable and high-performance APIs.
-    PostgreSQL for database storage, ensuring structured and reliable data management.
-    OAuth2 authentication for secure user access control.
-    Render for deployment, making the API publicly accessible.
+## Features
+- Secure authentication using OAuth2
+- CRUD operations for gadgets
+- PostgreSQL database integration
+- Proper error handling with validation
+- Deployed on Render
 
-Installation 
-    1) git clone https://github.com/sairamsreejith0/GadgetDesignAPI.git
+## Tech Stack
+- FastAPI as the backend framework
+- PostgreSQL for database storage
+- OAuth2 for authentication
+- Render for deployment
+
+## Installation
+    1. Clone the repository:
+
+       git clone https://github.com/sairamsreejith0/GadgetDesignAPI.git
+
     2) cd your_repo
     3) python -m venv venv 
     4) venv\Scripts\activate
