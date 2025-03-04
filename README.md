@@ -10,6 +10,7 @@
 ## Tech Stack
 - FastAPI as the backend framework
 - PostgreSQL for database storage
+- SQLAlchemy for ORM
 - OAuth2 for authentication
 - Render for deployment
 
