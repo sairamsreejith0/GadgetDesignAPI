@@ -74,7 +74,7 @@ def add_gadgets(gadget: GadgetCreate, db: Session = Depends(get_db)):
 @router.get("/gadgets",response_model=list[GadgetResponse])
 def get_gadgets(db:Session=Depends(get_db)):
     gadgets = db.query(Gadget).all()
-    gadget_list = []  # Create an empty list
+    gadget_list = []  
     for gadget in gadgets:
         gadget_dict = {
             "id" : str(gadget.id),
@@ -160,7 +160,7 @@ def get_gadget_status(status:str,db:Session=Depends(get_db)):
     gadgets = db.query(Gadget).filter(cast(Gadget.status, String) == status).all()
     if not gadgets:
         return []
-    gadget_list = []  # Create an empty list
+    gadget_list = [] 
     for gadget in gadgets:
         gadget_dict = {
             "id" : str(gadget.id),
